@@ -2,10 +2,11 @@ package com.example.demo.identity;
 
 import com.azure.core.credential.AccessToken;
 import com.azure.core.util.Configuration;
+import com.azure.core.util.logging.ClientLogger;
 import com.example.demo.identity.credential.TokenCredentialProvider;
+import com.example.demo.identity.credential.TokenCredentialProviderOptions;
 import com.example.demo.identity.token.AccessTokenResolver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.example.demo.identity.token.AccessTokenResolverOptions;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -19,24 +20,31 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class AzureAuthenticationTemplate {
 
-    private final Logger LOG = LoggerFactory.getLogger(AzureAuthenticationTemplate.class);
+    private static final ClientLogger LOGGER = new ClientLogger(AzureAuthenticationTemplate.class);
     public static final String PROP_GET_ACCESS_TOKEN_TIMEOUT_IN_SECONDS = "azure.getAccessTokenTimeoutInSeconds";
 
     private final AtomicBoolean isInitialized = new AtomicBoolean(false);
 
-    private final TokenCredentialProvider tokenCredentialProvider;
+    private TokenCredentialProvider tokenCredentialProvider;
 
-    private final AccessTokenResolver accessTokenResolver;
+    private AccessTokenResolver accessTokenResolver;
+
+    public AzureAuthenticationTemplate() {
+        this.tokenCredentialProvider = null;
+        this.accessTokenResolver = null;
+    }
 
     public AzureAuthenticationTemplate(TokenCredentialProvider tokenCredentialProvider,
                                        AccessTokenResolver accessTokenResolver) {
+        LOGGER.info("Initializing AzureAuthenticationTemplate in constructor");
         this.tokenCredentialProvider = tokenCredentialProvider;
         this.accessTokenResolver = accessTokenResolver;
+        this.isInitialized.set(true);
     }
 
-
-    public AzureAuthenticationTemplate() {
-        this(TokenCredentialProvider.createDefault(), AccessTokenResolver.createDefault());
+    public AzureAuthenticationTemplate(Configuration configuration) {
+        this(TokenCredentialProvider.createDefault(new TokenCredentialProviderOptions(configuration)),
+                AccessTokenResolver.createDefault(new AccessTokenResolverOptions(configuration)));
     }
 
     protected AccessTokenResolver getAccessTokenResolver() {
@@ -47,17 +55,16 @@ public class AzureAuthenticationTemplate {
         return tokenCredentialProvider;
     }
 
-
-
-
     protected void init(Configuration configuration) {
-
         if (isInitialized.compareAndSet(false, true)) {
-            LOG.info("Initializing AzureAuthenticationTemplate");
-        }
+            LOGGER.info("Initializing AzureAuthenticationTemplate");
+            this.tokenCredentialProvider = TokenCredentialProvider.createDefault(new TokenCredentialProviderOptions(configuration));
 
-        if(getAccessTokenResolver()==null){
-            accessTokenResolver = AccessTokenResolver.createDefault(configuration);
+            if (getAccessTokenResolver() == null) {
+                this.accessTokenResolver = AccessTokenResolver.createDefault(new AccessTokenResolverOptions(configuration));
+            }
+        } else {
+            LOGGER.info("Already initialized.");
         }
     }
 
@@ -68,13 +75,11 @@ public class AzureAuthenticationTemplate {
         return Mono.fromSupplier(getTokenCredentialProvider())
                    .flatMap(getAccessTokenResolver())
                    .filter(token -> !token.isExpired())
-                   .map(AccessToken::getToken)
-            ;
+                   .map(AccessToken::getToken);
     }
+
     protected String getTokenAsPassword() {
-        return getTokenAsPasswordAsync()
-                   .block(getBlockTimeout())
-            ;
+        return getTokenAsPasswordAsync().block(getBlockTimeout());
     }
 
     protected Duration getBlockTimeout(){
