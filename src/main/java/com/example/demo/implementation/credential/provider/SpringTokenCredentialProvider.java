@@ -1,4 +1,4 @@
-package com.example.demo.implementation.credential;
+package com.example.demo.implementation.credential.provider;
 
 import com.azure.core.credential.TokenCredential;
 import com.example.demo.identity.credential.TokenCredentialProvider;

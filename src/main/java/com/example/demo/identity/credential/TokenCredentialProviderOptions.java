@@ -1,13 +1,12 @@
 package com.example.demo.identity.credential;
 
 import com.azure.core.util.Configuration;
+import com.azure.identity.AzureAuthorityHosts;
 import com.example.demo.identity.AuthProperty;
-import com.example.demo.identity.AzureIdentityConfiguration;
-
-import java.util.Objects;
 
 public class TokenCredentialProviderOptions {
 
+    private String authorityHost = AzureAuthorityHosts.AZURE_PUBLIC_CLOUD;
     private String tenantId;
     private String clientId;
     private String clientSecret;
@@ -18,9 +17,7 @@ public class TokenCredentialProviderOptions {
     private boolean managedIdentityEnabled;
     private String tokenCredentialProviderClassName;
     private String tokenCredentialBeanName;
-    private boolean cacheTokenCredential;
-
-    private AzureIdentityConfiguration identityConfiguration;
+    private boolean cachedEnabled;
 
     public TokenCredentialProviderOptions() {
 
@@ -37,8 +34,8 @@ public class TokenCredentialProviderOptions {
         this.managedIdentityEnabled = Boolean.TRUE.equals(AuthProperty.MANAGED_IDENTITY_ENABLED.getBoolean(configuration));
         this.tokenCredentialProviderClassName = AuthProperty.TOKEN_CREDENTIAL_PROVIDER_CLASS_NAME.get(configuration);
         this.tokenCredentialBeanName = AuthProperty.TOKEN_CREDENTIAL_BEAN_NAME.get(configuration);
-        this.cacheTokenCredential = Boolean.TRUE.equals(AuthProperty.CACHE_TOKEN_CREDENTIAL.getBoolean(configuration));
-        this.identityConfiguration = new AzureIdentityConfiguration(configuration);
+        this.cachedEnabled = Boolean.TRUE.equals(AuthProperty.CACHE_ENABLED.getBoolean(configuration));
+        this.authorityHost = AuthProperty.AUTHORITY_HOST.get(configuration);
     }
 
     public String getTenantId() {
@@ -121,32 +118,20 @@ public class TokenCredentialProviderOptions {
         this.tokenCredentialBeanName = tokenCredentialBeanName;
     }
 
-    public boolean isCacheTokenCredential() {
-        return cacheTokenCredential;
+    public boolean isCachedEnabled() {
+        return cachedEnabled;
     }
 
-    public void setCacheTokenCredential(boolean cacheTokenCredential) {
-        this.cacheTokenCredential = cacheTokenCredential;
+    public void setCachedEnabled(boolean cachedEnabled) {
+        this.cachedEnabled = cachedEnabled;
     }
 
-    public AzureIdentityConfiguration getIdentityConfiguration() {
-        return identityConfiguration;
+    public String getAuthorityHost() {
+        return authorityHost;
     }
 
-    public void setIdentityConfiguration(AzureIdentityConfiguration identityConfiguration) {
-        this.identityConfiguration = identityConfiguration;
+    public void setAuthorityHost(String authorityHost) {
+        this.authorityHost = authorityHost;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof TokenCredentialProviderOptions)) return false;
-        TokenCredentialProviderOptions that = (TokenCredentialProviderOptions) o;
-        return managedIdentityEnabled == that.managedIdentityEnabled && cacheTokenCredential == that.cacheTokenCredential && Objects.equals(tenantId, that.tenantId) && Objects.equals(clientId, that.clientId) && Objects.equals(clientSecret, that.clientSecret) && Objects.equals(clientCertificatePath, that.clientCertificatePath) && Objects.equals(clientCertificatePassword, that.clientCertificatePassword) && Objects.equals(username, that.username) && Objects.equals(password, that.password) && Objects.equals(tokenCredentialProviderClassName, that.tokenCredentialProviderClassName) && Objects.equals(tokenCredentialBeanName, that.tokenCredentialBeanName) && Objects.equals(identityConfiguration, that.identityConfiguration);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(tenantId, clientId, clientSecret, clientCertificatePath, clientCertificatePassword, username, password, managedIdentityEnabled, tokenCredentialProviderClassName, tokenCredentialBeanName, cacheTokenCredential, identityConfiguration);
-    }
 }

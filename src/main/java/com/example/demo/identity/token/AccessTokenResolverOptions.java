@@ -27,7 +27,7 @@ public class AccessTokenResolverOptions {
 
         String scopeProperty = AuthProperty.SCOPES.get(configuration);
         this.scopes = scopeProperty == null ?  new String[0] : scopeProperty.split(",");
-        this.cacheAccessToken = Boolean.TRUE.equals(AuthProperty.CACHE_ACCESS_TOKEN.getBoolean(configuration));
+        this.cacheAccessToken = Boolean.TRUE.equals(AuthProperty.CACHE_ENABLED.getBoolean(configuration));
     }
 
     public String getClaims() {

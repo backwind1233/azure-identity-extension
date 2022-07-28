@@ -2,6 +2,7 @@ package com.example.demo.identity;
 
 import com.azure.core.credential.AccessToken;
 import com.azure.core.util.Configuration;
+import com.azure.core.util.ConfigurationBuilder;
 import com.azure.core.util.logging.ClientLogger;
 import com.example.demo.identity.credential.TokenCredentialProvider;
 import com.example.demo.identity.credential.TokenCredentialProviderOptions;
@@ -10,6 +11,7 @@ import com.example.demo.identity.token.AccessTokenResolverOptions;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -29,22 +31,23 @@ public class AzureAuthenticationTemplate {
 
     private AccessTokenResolver accessTokenResolver;
 
+    private Configuration configuration;
+
     public AzureAuthenticationTemplate() {
         this.tokenCredentialProvider = null;
         this.accessTokenResolver = null;
+        this.configuration = new ConfigurationBuilder().build();
     }
 
     public AzureAuthenticationTemplate(TokenCredentialProvider tokenCredentialProvider,
                                        AccessTokenResolver accessTokenResolver) {
-        LOGGER.info("Initializing AzureAuthenticationTemplate in constructor");
         this.tokenCredentialProvider = tokenCredentialProvider;
         this.accessTokenResolver = accessTokenResolver;
-        this.isInitialized.set(true);
     }
 
     public AzureAuthenticationTemplate(Configuration configuration) {
-        this(TokenCredentialProvider.createDefault(new TokenCredentialProviderOptions(configuration)),
-                AccessTokenResolver.createDefault(new AccessTokenResolverOptions(configuration)));
+        this();
+        this.configuration = configuration;
     }
 
     protected AccessTokenResolver getAccessTokenResolver() {
@@ -55,16 +58,23 @@ public class AzureAuthenticationTemplate {
         return tokenCredentialProvider;
     }
 
-    protected void init(Configuration configuration) {
+    protected void init(Properties properties) {
         if (isInitialized.compareAndSet(false, true)) {
-            LOGGER.info("Initializing AzureAuthenticationTemplate");
-            this.tokenCredentialProvider = TokenCredentialProvider.createDefault(new TokenCredentialProviderOptions(configuration));
+            LOGGER.info("Initializing AzureAuthenticationTemplate.");
+
+            properties.entrySet().forEach(entry ->
+                    configuration.put(entry.getKey().toString(), entry.getValue().toString()));
+
+            if (getTokenCredentialProvider() == null) {
+                this.tokenCredentialProvider = TokenCredentialProvider.createDefault(new TokenCredentialProviderOptions(this.configuration));
+            }
 
             if (getAccessTokenResolver() == null) {
-                this.accessTokenResolver = AccessTokenResolver.createDefault(new AccessTokenResolverOptions(configuration));
+                this.accessTokenResolver = AccessTokenResolver.createDefault(new AccessTokenResolverOptions(this.configuration));
             }
+            LOGGER.info("Initialized AzureAuthenticationTemplate.");
         } else {
-            LOGGER.info("Already initialized.");
+            LOGGER.info("AzureAuthenticationTemplate has already initialized.");
         }
     }
 

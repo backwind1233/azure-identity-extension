@@ -57,8 +57,7 @@ public class FakeDBTest {
     @Test
     void test_without_password_using_pool_and_enable_cache() throws Exception {
         properties.setProperty(DriverConstant.AUTH_PLUGIN_NAME, FakeDatabaseJDBCAuthPlugin.class.getName());
-        AuthProperty.CACHE_TOKEN_CREDENTIAL.setProperty(properties, "true");
-        AuthProperty.CACHE_ACCESS_TOKEN.setProperty(properties, "true");
+        AuthProperty.CACHE_ENABLED.setProperty(properties, "true");
 
         int pooledConnection = 30;
         for(int i = 0;i<pooledConnection;i++){

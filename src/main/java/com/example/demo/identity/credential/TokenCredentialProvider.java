@@ -1,7 +1,7 @@
 package com.example.demo.identity.credential;
 
 import com.azure.core.credential.TokenCredential;
-import com.example.demo.implementation.credential.TokenCredentialProviders;
+import com.example.demo.implementation.credential.provider.TokenCredentialProviders;
 
 import java.util.function.Supplier;
 

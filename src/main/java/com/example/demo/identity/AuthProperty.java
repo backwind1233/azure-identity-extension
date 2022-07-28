@@ -24,8 +24,7 @@ public enum AuthProperty {
     GET_TOKEN_TIMEOUT("azure.accessTokenTimeoutInSeconds"),
     TOKEN_CREDENTIAL_PROVIDER_CLASS_NAME("azure.tokenCredentialProviderClassName"),
     TOKEN_CREDENTIAL_BEAN_NAME("azure.tokenCredentialBeanName"),
-    CACHE_TOKEN_CREDENTIAL("azure.cacheTokenCredential"),
-    CACHE_ACCESS_TOKEN("azure.cacheAccessToken")
+    CACHE_ENABLED("azure.cacheEnabled")
     ;
 
     String name;
