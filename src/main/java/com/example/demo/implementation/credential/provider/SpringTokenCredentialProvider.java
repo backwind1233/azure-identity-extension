@@ -23,7 +23,7 @@ public class SpringTokenCredentialProvider implements TokenCredentialProvider, A
 
     public SpringTokenCredentialProvider(TokenCredentialProviderOptions options) {
         String beanName = options.getTokenCredentialBeanName();
-        if (beanName != null && !beanName.isBlank()) {
+        if (beanName != null && !beanName.isEmpty()) {
             this.tokenCredentialBeanName = beanName;
         }
     }

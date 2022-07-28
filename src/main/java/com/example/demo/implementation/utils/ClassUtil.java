@@ -33,7 +33,7 @@ public class ClassUtil {
     }
 
     public static <T> Class<T> getClass(String className, Class<TokenCredential> assignableClass) {
-        if (className != null && !className.isBlank()) {
+        if (className != null && !className.isEmpty()) {
             try {
                 Class<?> clazz = Class.forName(className);
                 if (!assignableClass.isAssignableFrom(clazz)) {
